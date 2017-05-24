@@ -1,10 +1,7 @@
 FROM basho/riak-ts:1.4.0
 MAINTAINER devicehive
 
-RUN apt-get update \
-    && apt-get -y install subversion \
-    && svn export https://github.com/devicehive/devicehive-java-server.git/branches/master/devicehive-riak-dao/src/main/resources/map-reduce /etc/riak/dh-mr/src/ \
-    && mkdir /etc/riak/dh-mr/ebin/ \
+RUN mkdir -p /etc/riak/dh-mr/src /etc/riak/dh-mr/ebin \
+    && curl -o /etc/riak/dh-mr/src/dhmr.erl https://raw.githubusercontent.com/devicehive/devicehive-java-server/master/devicehive-riak-dao/src/main/resources/map-reduce/dhmr.erl \
     && /usr/lib/riak/$(ls /usr/lib/riak/ | grep erts)/bin/erlc -o /etc/riak/dh-mr/ebin /etc/riak/dh-mr/src/*.erl \
-    && echo '[{riak_kv, [{add_paths, ["/etc/riak/dh-mr/ebin"]}]}].' > /etc/riak/advanced.config \
-    && apt-get -y remove --purge subversion
+    && echo '[{riak_kv, [{add_paths, ["/etc/riak/dh-mr/ebin"]}]}].' > /etc/riak/advanced.config
